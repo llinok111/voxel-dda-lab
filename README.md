@@ -15,9 +15,11 @@ Upstream: none
 ## 怎么跑（三条命令）
 
 ```bash
-node tools/gen-sample.mjs   # 生成 data/rays.json + data/reference.json（确定性，固定种子）
-node bench/verify.mjs       # 14 条断言，全部打印实测数字，失败则退出码 1
-node bench/bench.mjs        # 1 次冷启动 + 1 次预热 + 7 次采样，写 bench/result.json
+node tools/gen-sample.mjs        # 生成 data/rays.json + data/reference.json（确定性，固定种子）
+node bench/verify.mjs            # 14 条断言，全部打印实测数字，失败则退出码 1
+node bench/bench.mjs             # 1 次冷启动 + 1 次预热 + 7 次采样，写 bench/result.json
+node baseline/classic-aw.mjs     # 对照基线 1：教科书 AW 单轴并列 → missed=1399 (4.78%)
+node baseline/fixed-step.mjs 0.1 # 对照基线 2：固定步长采样 → missed=3271 (11.18%)
 ```
 
 浏览器（可选，仅渲染与交互）：`python3 -m http.server 4173`，然后打开 `http://localhost:4173`（importmap 引 three@0.169.0 固定版本，无打包器、无 `node_modules`）。
@@ -64,7 +66,8 @@ node bench/bench.mjs        # 1 次冷启动 + 1 次预热 + 7 次采样，写 b
 
 - `src/core.mjs` —— 纯 ES module：oracle、supercover/经典遍历、采样基线、比较与连通性统计；不 import three、不碰 DOM
 - `tools/gen-sample.mjs` —— 确定性语料生成（固定种子 20261117）
-- `bench/verify.mjs` —— 14 条断言；`bench/bench.mjs` —— 计时；`bench/oracle-independent.mjs` —— 独立 oracle
+- `bench/verify.mjs` —— 14 条断言；`bench/bench.mjs` —— 计时；`bench/oracle-independent.mjs` —— 独立 oracle（Liang–Barsky，自带容差）
+- `baseline/classic-aw.mjs`、`baseline/fixed-step.mjs` —— 上面两个对照基线，独立可跑
 - `index.html` / `main.js` —— three@0.169.0 固定 importmap 的渲染层，只消费 core 的输出
 
 MIT © 2026 llinok111
