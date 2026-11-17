@@ -151,6 +151,49 @@ const witnessed = raysDoc.viewer.every((v) => {
 });
 check('A12 viewer corpus', rehashed && witnessed, `${raysDoc.viewer.length} viewer rays re-traced with core, all match stored cells`);
 
+// A15 — degenerate-ray suite: boundary starts, in-plane rays, zero components,
+// outward exits, negative directions. These cases are measure-zero in the random
+// corpus, so they are asserted explicitly (closed-set semantics).
+const degenerate = [];
+{
+  const g = 16;
+  const gd = [g, g, g];
+  for (const ax of [0, 1, 2]) {
+    for (const v of [4, 8]) {
+      const p0 = [5.5, 5.5, 5.5];
+      p0[ax] = v;
+      degenerate.push([`face-start-${ax}@${v}`, p0, [p0[0] + 3.3, p0[1] + 2.7, p0[2] + 1.1]]);
+    }
+  }
+  degenerate.push(['axis-x', [0.5, 7.5, 7.5], [15.5, 7.5, 7.5]]);
+  degenerate.push(['in-plane-y', [0.5, 8, 7.5], [15.5, 8, 7.5]]);
+  degenerate.push(['two-degenerate', [0.5, 8, 8], [15.5, 8, 8]]);
+  degenerate.push(['negative-dir', [12.25, 11.75, 9.25], [-3.5, -2.5, -1.5]]);
+  degenerate.push(['negative-lattice', [12.5, 12.5, 12.5], [4.5, 4.5, 4.5]]);
+  degenerate.push(['exit-outward', [2.5, 2.5, 2.5], [40.5, 2.5, 2.5]]);
+  degenerate.push(['exit-diagonal', [1.5, 1.5, 1.5], [30.5, 30.5, 30.5]]);
+  degenerate.push(['corner-start', [4, 4, 4], [11, 9, 7]]);
+  degenerate.push(['corner-start-negative', [4, 4, 4], [0, 0, 0]]);
+  degenerate.push(['edge-start', [4, 4, 5.5], [11, 9, 2.5]]);
+  degenerate.push(['in-plane-negative', [8, 0.5, 8], [8, 15.5, 8]]);
+  var gdims = gd;
+}
+let degenerMissed = 0;
+let degenerExtra = 0;
+let degenerVoxels = 0;
+for (const [, p0, p1] of degenerate) {
+  const or = oracleTraversal(p0, p1, gdims);
+  const c = compare(traverse(p0, p1, gdims, 'supercover'), or, gdims);
+  degenerVoxels += or.length;
+  degenerMissed += c.missed;
+  degenerExtra += c.extra;
+}
+check(
+  'A15 degenerate rays',
+  degenerMissed === 0 && degenerExtra === 0,
+  `${degenerate.length} boundary/in-plane/negative/exit rays, ${degenerVoxels} oracle voxels: missed=${degenerMissed} extra=${degenerExtra}`
+);
+
 // A13 — single-ray cost sanity: oracle is the expensive reference
 const tOracle = (() => {
   const t0 = process.hrtime.bigint();

@@ -104,6 +104,36 @@ export function traverse(p0w, p1w, dims, mode = 'supercover', scale = 1) {
   const out = [];
   const seen = new Set();
   const primary = [];
+  // Closed-set semantics: a ray that starts exactly on a voxel boundary, or that
+  // runs inside a boundary plane (zero direction component), touches the cells on
+  // both sides. Without these expansions supercover silently drops them.
+  const eps = tolerance([p0, p1]);
+  const startToggles = [];
+  const planeToggles = [];
+  for (let a = 0; a < 3; a++) {
+    const vInt = Math.round(p0[a]);
+    const onBoundary = Math.abs(p0[a] - vInt) <= eps * 8;
+    const mirror = vInt - 1;
+    if (!onBoundary || mirror < 0 || mirror > dims[a] - 1) continue;
+    if (step[a] === 0) planeToggles.push(a);
+    else startToggles.push(a);
+  }
+  const startBlock = [];
+  const combos = (axes, source) => {
+    const res = [];
+    for (let mask = 1; mask < 1 << axes.length; mask++) {
+      const cell = [...source];
+      for (let b = 0; b < axes.length; b++) {
+        if (mask & (1 << b)) cell[axes[b]] -= 1;
+      }
+      res.push(cell);
+    }
+    return res;
+  };
+  if (supercover) {
+    for (const cell of combos(startToggles, idx)) startBlock.push(cell);
+  }
+  for (const cell of startBlock) pushCell(out, seen, cell[0], cell[1], cell[2], dims);
   pushCell(out, seen, idx[0], idx[1], idx[2], dims);
   primary.push([idx[0], idx[1], idx[2]]);
   let guard = 0;
@@ -150,7 +180,15 @@ export function traverse(p0w, p1w, dims, mode = 'supercover', scale = 1) {
       primary.push([idx[0], idx[1], idx[2]]);
     }
   }
-  return supercover ? { cells: out, primary } : { cells: out, primary };
+  if (supercover && planeToggles.length) {
+    const snapshot = out.slice();
+    for (const cell of snapshot) {
+      for (const mirror of combos(planeToggles, cell)) {
+        pushCell(out, seen, mirror[0], mirror[1], mirror[2], dims);
+      }
+    }
+  }
+  return { cells: out, primary };
 }
 
 /** Classic fixed-step sampling: sample every `step` voxels and floor the point. */
