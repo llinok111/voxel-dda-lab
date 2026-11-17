@@ -1,0 +1,14 @@
+{
+  "name": "voxel-dda-lab",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Exact segment/voxel traversal (supercover DDA) certified against a brute-force oracle",
+  "license": "MIT",
+  "scripts": {
+    "sample": "node tools/gen-sample.mjs",
+    "verify": "node bench/verify.mjs",
+    "bench": "node bench/bench.mjs",
+    "serve": "python3 -m http.server 4173"
+  }
+}

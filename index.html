@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>voxel-dda-lab — exact segment/voxel traversal</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; background: #0b0f14; color: #cfe3ff; }
+  #hud { position: fixed; top: 0; left: 0; padding: 12px 14px; max-width: 380px; background: #0b0f14cc; }
+  h1 { font-size: 14px; margin: 0 0 6px; }
+  button { font: inherit; background: #16202c; color: inherit; border: 1px solid #2c4257; padding: 3px 8px; cursor: pointer; }
+  button[aria-pressed="true"] { background: #24405c; }
+  #stats { white-space: pre; margin-top: 8px; color: #8fd6a0; }
+  canvas { display: block; }
+</style>
+</head>
+<body>
+<div id="hud">
+  <h1>voxel-dda-lab · 48³ grid</h1>
+  <div id="controls">
+    <button id="btn-super" aria-pressed="true">supercover</button>
+    <button id="btn-classic" aria-pressed="false">classic AW</button>
+    <button id="btn-missed" aria-pressed="true">show missed</button>
+    <span id="ray-label">—</span>
+  </div>
+  <div id="stats">booting…</div>
+</div>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module" src="./main.js"></script>
+</body>
+</html>

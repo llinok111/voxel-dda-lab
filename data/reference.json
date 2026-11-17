@@ -1,0 +1,32 @@
+{
+ "dims": [
+  48,
+  48,
+  48
+ ],
+ "seed": 20261117,
+ "rayCount": 10000,
+ "latticeRays": 1000,
+ "certificationRays": 2000,
+ "oracleVoxels": 29264,
+ "supercoverMissed": 0,
+ "classicMissed": 1399,
+ "sample0p1Missed": 3271,
+ "diagonalWitness": {
+  "p0": [
+   0.5,
+   0.5,
+   0.5
+  ],
+  "p1": [
+   3.5,
+   3.5,
+   3.5
+  ],
+  "oracle": 22,
+  "supercover": 22,
+  "classic": 10,
+  "sample0p5": 4
+ },
+ "raysSha256": "b6ae973e01e09c7b3b1b3672bb5911aa8dca849a7cf3a6db92421f02813a2667"
+}

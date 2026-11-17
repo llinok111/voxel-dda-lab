@@ -1,0 +1,13 @@
+node_modules/
+vendor/
+__pycache__/
+*.pyc
+.venv/
+.env
+*.zip
+*.tar.gz
+*.tgz
+*.7z
+.DS_Store
+state/
+.model-patch.yml
