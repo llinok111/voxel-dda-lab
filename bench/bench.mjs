@@ -13,16 +13,15 @@ import {
 
 const dims = DEFAULT_DIMS;
 const rays = makeRays(DEFAULT_SEED, DEFAULT_RAY_COUNT, dims);
-const certifyIdx = Array.from({ length: 2000 }, (_, i) => Math.floor((i * rays.length) / 2000));
-const oracleIdx = certifyIdx.slice(0, 250);
+const oracleIdx = rays.slice(0, 250);
 
 const ops = {
   supercover_10k: () => rays.forEach((r) => traverse(r.p0, r.p1, dims, 'supercover')),
   classic_10k: () => rays.forEach((r) => traverse(r.p0, r.p1, dims, 'single')),
   sample0p5_10k: () => rays.forEach((r) => sampleTraversal(r.p0, r.p1, dims, 0.5)),
   sample0p1_10k: () => rays.forEach((r) => sampleTraversal(r.p0, r.p1, dims, 0.1)),
-  oracle_250: () => oracleIdx.forEach((i) => oracleTraversal(rays[i].p0, rays[i].p1, dims)),
-  oracle_certify_2k: () => certifyIdx.forEach((i) => oracleTraversal(rays[i].p0, rays[i].p1, dims)),
+  oracle_250: () => oracleIdx.forEach((r) => oracleTraversal(r.p0, r.p1, dims)),
+  oracle_certify_all10k: () => rays.forEach((r) => oracleTraversal(r.p0, r.p1, dims)),
 };
 
 function timeOnce(fn) {
@@ -58,7 +57,7 @@ const speedup = (a, b) => result.ops[a].median / result.ops[b].median;
 result.derived = {
   supercover_us_per_ray: (result.ops.supercover_10k.median / 10000) * 1000,
   oracle_us_per_ray: (result.ops.oracle_250.median / 250) * 1000,
-  supercover_vs_oracle: result.ops.oracle_certify_2k.median / 2000 / (result.ops.supercover_10k.median / 10000),
+  supercover_vs_oracle: result.ops.oracle_certify_all10k.median / 10000 / (result.ops.supercover_10k.median / 10000),
 };
 
 mkdirSync('bench', { recursive: true });

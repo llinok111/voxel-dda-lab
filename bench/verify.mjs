@@ -49,8 +49,7 @@ check(
   `p0=(0.5,0.5,0.5) p1=(3.5,3.5,3.5): oracle=${oW.length} supercover=${sW.cells.length} classic=${cW.cells.length} sample@0.5=${mW.length}`
 );
 
-// A4..A6 — 2000-ray certification subset against the in-repo oracle
-const subsetIdx = Array.from({ length: 2000 }, (_, i) => Math.floor((i * rays.length) / 2000));
+// A4..A6 — whole-corpus certification against the in-repo oracle
 let oracleVoxels = 0;
 let superMissed = 0;
 let superExtra = 0;
@@ -60,8 +59,7 @@ let sample05Missed = 0;
 let oob = 0;
 const primaryStats = { face: 0, diag: 0, duplicate: 0 };
 const classicStats = { face: 0, diag: 0, duplicate: 0 };
-for (const i of subsetIdx) {
-  const r = rays[i];
+for (const r of rays) {
   const or = oracleTraversal(r.p0, r.p1, dims);
   oracleVoxels += or.length;
   const sup = traverse(r.p0, r.p1, dims, 'supercover');
@@ -81,7 +79,7 @@ for (const i of subsetIdx) {
 check(
   'A4 supercover completeness',
   superMissed === 0 && superExtra === 0 && oracleVoxels === ref.oracleVoxels,
-  `${subsetIdx.length} rays, ${oracleVoxels} oracle voxels: missed=${superMissed} extra=${superExtra} (reference.json=${ref.oracleVoxels})`
+  `${rays.length} rays, ${oracleVoxels} oracle voxels: missed=${superMissed} extra=${superExtra} (reference.json=${ref.oracleVoxels})`
 );
 check(
   'A5 classic AW misses',
@@ -108,8 +106,7 @@ check(
 // A9 — independent oracle (Liang-Barsky, own tolerance) must produce the same sets
 let indepDiff = 0;
 let indepChecked = 0;
-for (let n = 0; n < 250; n++) {
-  const r = rays[subsetIdx[n]];
+for (const r of rays) {
   const a = independentOracle(r.p0, r.p1, dims);
   const b = oracleTraversal(r.p0, r.p1, dims);
   indepDiff += setDiff(a, b).length + setDiff(b, a).length;
@@ -118,7 +115,7 @@ for (let n = 0; n < 250; n++) {
 check(
   'A9 independent oracle',
   indepDiff === 0,
-  `Liang-Barsky oracle vs slab oracle on ${indepChecked} rays: ${indepDiff} set differences`
+  `Liang-Barsky oracle vs slab oracle on ${indepChecked} rays: ${indepDiff} set differences (reference.json=${ref.independentOracleDiff})`
 );
 
 // A10 — scale invariance: same cell sets and same verdict at 1e-9 .. 1e9

@@ -7,11 +7,13 @@
  "seed": 20261117,
  "rayCount": 10000,
  "latticeRays": 1000,
- "certificationRays": 2000,
- "oracleVoxels": 29264,
+ "certifiedRays": 10000,
+ "oracleVoxels": 146593,
  "supercoverMissed": 0,
- "classicMissed": 1399,
- "sample0p1Missed": 3271,
+ "classicMissed": 6782,
+ "sample0p1Missed": 16299,
+ "sample0p5Missed": 34959,
+ "independentOracleDiff": 0,
  "diagonalWitness": {
   "p0": [
    0.5,
