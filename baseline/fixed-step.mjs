@@ -13,13 +13,11 @@ import {
 const step = Number(process.argv[2] ?? 0.1);
 const dims = DEFAULT_DIMS;
 const rays = makeRays(DEFAULT_SEED, DEFAULT_RAY_COUNT, dims);
-const idx = Array.from({ length: 2000 }, (_, i) => Math.floor((i * rays.length) / 2000));
 let oracleVoxels = 0;
 let missed = 0;
 let extra = 0;
 let samples = 0;
-for (const i of idx) {
-  const r = rays[i];
+for (const r of rays) {
   const or = oracleTraversal(r.p0, r.p1, dims);
   const c = compare(sampleTraversal(r.p0, r.p1, dims, step), or, dims);
   oracleVoxels += or.length;
@@ -29,6 +27,6 @@ for (const i of idx) {
   samples += Math.ceil(len / step) + 1;
 }
 console.log(
-  `baseline fixed-step (step=${step}): ${idx.length} rays, ${oracleVoxels} oracle voxels -> ` +
+  `baseline fixed-step (step=${step}): ${rays.length} rays, ${oracleVoxels} oracle voxels -> ` +
     `missed=${missed} (${((100 * missed) / oracleVoxels).toFixed(2)}%), extra=${extra}, ${samples} samples`
 );
