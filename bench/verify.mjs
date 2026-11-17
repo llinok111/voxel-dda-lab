@@ -12,6 +12,7 @@ import {
   connectivity,
 } from '../src/core.mjs';
 import { independentOracle, setDiff } from './oracle-independent.mjs';
+import { exactOracleLattice } from './oracle-exact.mjs';
 
 let pass = 0;
 let fail = 0;
@@ -192,6 +193,29 @@ check(
   'A15 degenerate rays',
   degenerMissed === 0 && degenerExtra === 0,
   `${degenerate.length} boundary/in-plane/negative/exit rays, ${degenerVoxels} oracle voxels: missed=${degenerMissed} extra=${degenerExtra}`
+);
+
+// A16 — tolerance-free oracle: exact rational (BigInt) slab test on lattice rays,
+// no floating point and no SHARED constant with either float oracle.
+const lattice = rays.filter((r) => r.kind === 'lattice');
+let exactDiff = 0;
+let exactVoxels = 0;
+let exactMissed = 0;
+const exactN = 120;
+for (let n = 0; n < exactN; n++) {
+  const r = lattice[Math.floor((n * lattice.length) / exactN)];
+  const ex = exactOracleLattice(r.p0, r.p1, dims);
+  const fl = oracleTraversal(r.p0, r.p1, dims);
+  const sup = traverse(r.p0, r.p1, dims, 'supercover').cells;
+  exactVoxels += ex.length;
+  exactDiff += setDiff(ex, fl).length + setDiff(fl, ex).length;
+  const exSet = new Set(ex.map((c) => c.join(',')));
+  for (const c of sup) if (!exSet.has(c.join(','))) exactMissed++;
+}
+check(
+  'A16 exact rational oracle',
+  exactDiff === 0 && exactMissed === 0,
+  `BigInt slab oracle on ${exactN} lattice rays, ${exactVoxels} voxels: diff vs float oracle=${exactDiff}, supercover missed=${exactMissed}`
 );
 
 // A13 — single-ray cost sanity: oracle is the expensive reference

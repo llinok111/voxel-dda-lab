@@ -17,7 +17,7 @@ Upstream: none
 
 ```bash
 node tools/gen-sample.mjs        # 生成 data/rays.json + data/reference.json（确定性，固定种子）
-node bench/verify.mjs            # 15 条断言，全部打印实测数字，失败则退出码 1
+node bench/verify.mjs            # 16 条断言，全部打印实测数字，失败则退出码 1
 node bench/bench.mjs             # 1 次冷启动 + 1 次预热 + 7 次采样，写 bench/result.json
 node baseline/classic-aw.mjs     # 对照基线 1：教科书 AW 单轴并列 → missed=6782 (4.63%)
 node baseline/fixed-step.mjs 0.1 # 对照基线 2：固定步长采样 → missed=16299 (11.12%)
@@ -27,7 +27,7 @@ node baseline/fixed-step.mjs 0.1 # 对照基线 2：固定步长采样 → misse
 
 ## 证据（全部来自上面的命令，逐条可复跑）
 
-`node bench/verify.mjs` → **15 passed / 0 failed**，关键行：
+`node bench/verify.mjs` → **16 passed / 0 failed**，关键行：
 
 | 断言 | 实测 |
 | --- | --- |
@@ -36,6 +36,7 @@ node baseline/fixed-step.mjs 0.1 # 对照基线 2：固定步长采样 → misse
 | 同上，经典 AW 单轴并列 | 漏检 **6,782 / 146,593 = 4.63%**（随机射线 0，全部来自整数格点语料） |
 | 同上，固定步长 0.1 采样 | 漏检 **16,299 = 11.12%**（步长 0.5 时漏 34,959 = 23.85%） |
 | 独立 oracle（Liang–Barsky 裁剪，自带容差 1e-9·bboxDiag） | **全部 10,000 条**射线 **0 集合差** |
+| 第三 oracle：**无浮点**的 BigInt 有理数 slab 测试（与两个浮点 oracle 都不共用常量） | 120 条整数格点射线、2,834 个体素：与浮点 oracle **0 差**，supercover 漏检 **0** |
 | 尺度不变性 1e-9 / 1e-6 / 1e-3 / 1 / 1e3 / 1e6 / 1e9 | 7 个尺度上格子集合 **完全一致**，漏检/误报均 0 |
 | 退化射线套件（17 条：起点在体素面/棱/角上、整条射线位于边界平面内、零方向分量、负方向、向外穿出） | 510 个 oracle 体素，supercover 漏检 **0**、误报 **0** |
 | 越界格子 | **0** |
@@ -69,7 +70,7 @@ node baseline/fixed-step.mjs 0.1 # 对照基线 2：固定步长采样 → misse
 
 - `src/core.mjs` —— 纯 ES module：oracle、supercover/经典遍历、采样基线、比较与连通性统计；不 import three、不碰 DOM
 - `tools/gen-sample.mjs` —— 确定性语料生成（固定种子 20261117）
-- `bench/verify.mjs` —— 14 条断言；`bench/bench.mjs` —— 计时；`bench/oracle-independent.mjs` —— 独立 oracle（Liang–Barsky，自带容差）
+- `bench/verify.mjs` —— 16 条断言；`bench/bench.mjs` —— 计时；`bench/oracle-independent.mjs`（Liang–Barsky，自带容差）与 `bench/oracle-exact.mjs`（BigInt 有理数，无浮点）—— 两个独立 oracle
 - `baseline/classic-aw.mjs`、`baseline/fixed-step.mjs` —— 上面两个对照基线，独立可跑
 - `index.html` / `main.js` —— three@0.169.0 固定 importmap 的渲染层，只消费 core 的输出
 
