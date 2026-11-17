@@ -3,7 +3,7 @@
 // voxel (i,j,k) is the closed box [i,i+1] x [j,j+1] x [k,k+1].
 
 /** Numerical tolerance for "the ray touches this face/corner" tests. */
-export const TOUCH_EPS = 1e-12;
+export const TOUCH_EPS = 1e-14;
 
 export function sign(x) {
   return x > 0 ? 1 : x < 0 ? -1 : 0;
@@ -113,8 +113,12 @@ export function traverse(p0w, p1w, dims, mode = 'supercover', scale = 1) {
   for (let a = 0; a < 3; a++) {
     const vInt = Math.round(p0[a]);
     const onBoundary = Math.abs(p0[a] - vInt) <= eps * 8;
-    const mirror = vInt - 1;
-    if (!onBoundary || mirror < 0 || mirror > dims[a] - 1) continue;
+    // the mirror cell exists only if p0[a] is a real interior boundary of the
+    // grid; at the outer max boundary (p0[a] == dims[a]) the point lies solely
+    // in the clamped cell and there is nothing to mirror.
+    const floorRaw = Math.floor(p0[a]);
+    const mirrorOk = floorRaw >= 0 && floorRaw <= dims[a] - 1;
+    if (!onBoundary || !mirrorOk) continue;
     if (step[a] === 0) planeToggles.push(a);
     else startToggles.push(a);
   }
@@ -171,7 +175,13 @@ export function traverse(p0w, p1w, dims, mode = 'supercover', scale = 1) {
         block.push({ cell, bits });
       }
       block.sort((x, y) => x.bits.length - y.bits.length);
-      for (const { cell } of block) pushCell(out, seen, cell[0], cell[1], cell[2], dims);
+      for (const { cell } of block) {
+        // A near-tie inside the DDA's tie window is not a real corner contact:
+        // only emit the cell if the segment really touches its closed box under
+        // the same closed-set tolerance the oracles use.
+        if (!segmentTouchesBox(p0, p1, cell, [cell[0] + 1, cell[1] + 1, cell[2] + 1], eps)) continue;
+        pushCell(out, seen, cell[0], cell[1], cell[2], dims);
+      }
       for (const a of tied) {
         idx[a] += step[a];
         tMax[a] += tDelta[a];

@@ -157,7 +157,7 @@ check('A12 viewer corpus', rehashed && witnessed, `${raysDoc.viewer.length} view
 // corpus, so they are asserted explicitly (closed-set semantics).
 const degenerate = [];
 {
-  const g = 16;
+  const g = 48;
   const gd = [g, g, g];
   for (const ax of [0, 1, 2]) {
     for (const v of [4, 8]) {
@@ -166,9 +166,9 @@ const degenerate = [];
       degenerate.push([`face-start-${ax}@${v}`, p0, [p0[0] + 3.3, p0[1] + 2.7, p0[2] + 1.1]]);
     }
   }
-  degenerate.push(['axis-x', [0.5, 7.5, 7.5], [15.5, 7.5, 7.5]]);
-  degenerate.push(['in-plane-y', [0.5, 8, 7.5], [15.5, 8, 7.5]]);
-  degenerate.push(['two-degenerate', [0.5, 8, 8], [15.5, 8, 8]]);
+  degenerate.push(['axis-x', [0.5, 7.5, 7.5], [47.5, 7.5, 7.5]]);
+  degenerate.push(['in-plane-y', [0.5, 8, 7.5], [47.5, 8, 7.5]]);
+  degenerate.push(['two-degenerate', [0.5, 8, 8], [47.5, 8, 8]]);
   degenerate.push(['negative-dir', [12.25, 11.75, 9.25], [-3.5, -2.5, -1.5]]);
   degenerate.push(['negative-lattice', [12.5, 12.5, 12.5], [4.5, 4.5, 4.5]]);
   degenerate.push(['exit-outward', [2.5, 2.5, 2.5], [40.5, 2.5, 2.5]]);
@@ -176,7 +176,15 @@ const degenerate = [];
   degenerate.push(['corner-start', [4, 4, 4], [11, 9, 7]]);
   degenerate.push(['corner-start-negative', [4, 4, 4], [0, 0, 0]]);
   degenerate.push(['edge-start', [4, 4, 5.5], [11, 9, 2.5]]);
-  degenerate.push(['in-plane-negative', [8, 0.5, 8], [8, 15.5, 8]]);
+  degenerate.push(['in-plane-negative', [8, 0.5, 8], [8, 47.5, 8]]);
+  // outer max boundary: the point lies only in the clamped cell, nothing to mirror
+  degenerate.push(['outer-max-start', [48, 8.5, 8.5], [55, 8.5, 8.5]]);
+  degenerate.push(['outer-max-start-neg', [48, 20.5, 20.5], [40, 10, 10]]);
+  degenerate.push(['outer-corner-start', [48, 48, 48], [40, 40, 40]]);
+  // near-corner crossings: the DDA tie window fires but the corner is NOT touched,
+  // so no corner-block cell may be emitted (exact-rational oracle says 25 cells)
+  degenerate.push(['near-corner-x', [9.5, 9.5000000001, 5.5], [19.5, 19.5000000001, 7.5]]);
+  degenerate.push(['near-corner-y', [3.5, 3.500000001, 3.5], [20.5, 20.500000001, 12.5]]);
   var gdims = gd;
 }
 let degenerMissed = 0;
